@@ -3,6 +3,23 @@ body
     background-image: url(ocean.png);
 }
 
+button
+{
+    padding: 0;
+    border: solid;
+    border-color: white;
+    width: 3rem;
+    background-color: #c6c0e0;
+    color: #5091ce;
+    text-align: center;
+}
+
+button:hover
+{
+    background-color: #f9e8fc;
+}
+
+
 .bigbanner
 {
     display: flex;
@@ -21,8 +38,6 @@ body
     width: 25%;
     height: 13rem;
 
-
-
 }
 
 .banner
@@ -34,19 +49,25 @@ body
     width: 50%;
     height: 13rem;
 
-
-
     color: white;
 }
 
 #rightgradient
 {
     background-image: linear-gradient(to left, #296e6c , #f17369);
-
-
     width: 25%;
     height: 13rem;
 }
+
+#ButtonDiv
+{
+    padding: 2rem;
+    border-color: white;
+    background-color: #e3f2f7;
+    text-align: center;
+
+}
+
 
 .textbox
 {
@@ -67,3 +88,4 @@ body
 {
     margin-left: 10%;
 }
+
