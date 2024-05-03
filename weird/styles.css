@@ -1,0 +1,49 @@
+@font-face {
+    font-family: 'daydream';
+    src: url('Daydream.ttf');
+}
+
+#image_container {
+    max-width:100px;
+    margin: 0 auto;
+}
+  
+#image_container img {
+height: 55%;
+transition: 0.5s;
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+
+}
+
+  
+
+#image_container img:hover {
+    filter: brightness(1.4);
+
+}
+  
+#door {
+    visibility: hidden;
+}
+
+#light {
+    visibility: hidden;
+}
+
+html,body {
+    
+    margin:0;
+    padding:0;
+    background-color: black;
+    background-image: url('grass.png');
+
+   
+    
+}
+
+.elipse{
+    color:wheat
+}
