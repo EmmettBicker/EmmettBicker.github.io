@@ -58,13 +58,15 @@ function perlinNoiseToStringArray(perlinNoise2D, charactersPerRow) {
 // }
     
 
-const lines = 40
+const lines = 60
 const font_size = 100/lines + "vh"
 
 var time_switched_to_noise = new Date() - 30000
-var target_p_noise = generatePerlinNoise(100,100)
+var target_p_noise = generatePerlinNoise(70,70)
 var frame_to_add = -1
 
+var p_noise_gradual_addon = 0.2
+var p_noise_mult = 1 - p_noise_gradual_addon
 
 var str_arr = []
 
@@ -80,9 +82,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentDate - time_switched_to_noise > 1000) {
             time_switched_to_noise = new Date()
             // pnoise = target_p_noise
-            target_p_noise = generatePerlinNoise(100,100)
-            frame_to_add = transitionalFrame(pnoise, target_p_noise,70)
-            
+            target_p_noise = generatePerlinNoise(70,70, 0, p_noise_mult)
+            frame_to_add = transitionalFrame(pnoise, target_p_noise,50)
+            p_noise_mult = Math.min(p_noise_mult + 0.2,2)
         }
         else {
             pnoise = add2DArrays(pnoise,frame_to_add)
@@ -105,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
             addTextLine(makeTextLine(i));
         }
 
-        makeName()
+        // makeName()
 
         setTimeout(() => 
         {
@@ -152,7 +154,7 @@ function addTextLine(param_arr) {
         tspan.textContent = char;
         tspan.setAttribute('opacity', 1);
         if (char == "0") {
-            tspan.setAttribute('fill', "blue");
+            tspan.setAttribute('fill', "black");
         }
         else if (char == "1") {
             tspan.setAttribute('fill', "#0096C7");
@@ -193,10 +195,42 @@ function getCharsToReachEnd() {
 function makeTextLine(i) {
     const svg = document.querySelector('svg');
     const svgHeight = svg.clientHeight;
+    var example = String.raw`XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`
+    var start = lines / 2 - 4
+    var end = lines / 2 + 1
+    var ret_val = str_arr[i]
+    var current_line = str_arr[i]
+    var color = "grey"
+    var text_ls = 
+    [
+        String.raw` ___  XXXXXXXXXXXX   _   _   ___ _    _  XXXXXXXXX`,
+        String.raw`| __|_ __  _ __  ___| |_| |_| _ |_)__| |_____ _ _ `,
+        String.raw`| _|| '  \| '  \/ -_)  _|  _| _ \ / _| / / -_) '_|`,
+        String.raw`|___|_|_|_|_|_|_\___|\__|\__|___/_\__|_\_\___|_|  `,
 
-
-    return [str_arr[i], 
-            "gray",
+    ]
+    var str_start = getCharsToReachEnd() / 2 - example.length/2
+    var str_end = getCharsToReachEnd() / 2 + example.length/2 -1
+    if (i < end && i > start) 
+    {
+        ret_val = str_arr[i].substring(0,str_start)
+                    + text_ls[i-start-1]
+                    + str_arr[i].substring(str_end,getCharsToReachEnd() )
+        color = "white";
+        
+        if (ret_val.indexOf("X") > -1) 
+        {
+            for (let j = str_start; j <= str_end; j++) 
+            {
+                if (ret_val.charAt(j) == 'X') {
+               
+                    ret_val = ret_val.replaceAt(j,current_line[Math.floor(j)] +"")
+                }
+            }
+        }
+    }
+    return [ret_val, 
+            color,
             4,
             i* svgHeight/lines]
 }
@@ -207,12 +241,11 @@ function makeName() {
     var start = (lines/2) - 3
     var text_ls = 
     [
-        String.raw`                                                  `,
-        String.raw` ___                 _   _   ___ _    _           `,
+        String.raw` ___  XXXXXXXXXXXX   _   _   ___ _    _   XXXXXXXX`,
         String.raw`| __|_ __  _ __  ___| |_| |_| _ |_)__| |_____ _ _ `,
         String.raw`| _|| '  \| '  \/ -_)  _|  _| _ \ / _| / / -_) '_|`,
         String.raw`|___|_|_|_|_|_|_\___|\__|\__|___/_\__|_\_\___|_|  `,
-        String.raw`                                                  `
+        String.raw`                                                  `,
     ]
     var avg_char_height = svgHeight/lines 
     var svgWidth = svg.clientWidth;
