@@ -58,15 +58,15 @@ function perlinNoiseToStringArray(perlinNoise2D, charactersPerRow) {
 // }
     
 
-const lines = 60
+const lines = 40
 const font_size = 100/lines + "vh"
 
 var time_switched_to_noise = new Date() - 30000
 var target_p_noise = generatePerlinNoise(70,70)
 var frame_to_add = -1
 
-var p_noise_gradual_addon = 0.2
-var p_noise_mult = 1 - p_noise_gradual_addon
+var counter = 0
+var p_noise_mult = 0.8
 
 var str_arr = []
 
@@ -82,9 +82,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentDate - time_switched_to_noise > 1000) {
             time_switched_to_noise = new Date()
             // pnoise = target_p_noise
-            target_p_noise = generatePerlinNoise(70,70, 0, p_noise_mult)
+            target_p_noise = generatePerlinNoise(70,70, -0, p_noise_mult * (Math.sin(counter)+0.6)/2)
             frame_to_add = transitionalFrame(pnoise, target_p_noise,50)
             p_noise_mult = Math.min(p_noise_mult + 0.2,2)
+
+            counter += 0.3
         }
         else {
             pnoise = add2DArrays(pnoise,frame_to_add)
@@ -112,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => 
         {
             requestAnimationFrame(animate);
-        },30)
+        },20)
 
         
     }
@@ -224,7 +226,7 @@ function makeTextLine(i) {
             {
                 if (ret_val.charAt(j) == 'X') {
                
-                    ret_val = ret_val.replaceAt(j,current_line[Math.floor(j)] +"")
+                    ret_val = ret_val.replaceAt(j,""+current_line.charAt(Math.floor(j)))
                 }
             }
         }
@@ -235,36 +237,36 @@ function makeTextLine(i) {
             i* svgHeight/lines]
 }
 
-function makeName() {
-    const svg = document.querySelector('svg');
-    const svgHeight = svg.clientHeight;
-    var start = (lines/2) - 3
-    var text_ls = 
-    [
-        String.raw` ___  XXXXXXXXXXXX   _   _   ___ _    _   XXXXXXXX`,
-        String.raw`| __|_ __  _ __  ___| |_| |_| _ |_)__| |_____ _ _ `,
-        String.raw`| _|| '  \| '  \/ -_)  _|  _| _ \ / _| / / -_) '_|`,
-        String.raw`|___|_|_|_|_|_|_\___|\__|\__|___/_\__|_\_\___|_|  `,
-        String.raw`                                                  `,
-    ]
-    var avg_char_height = svgHeight/lines 
-    var svgWidth = svg.clientWidth;
-    // Each monospaced character is 5/3 x more wide than tall
-    var avg_char_width = avg_char_height / 1.66
+// function makeName() {
+//     const svg = document.querySelector('svg');
+//     const svgHeight = svg.clientHeight;
+//     var start = (lines/2) - 3
+//     var text_ls = 
+//     [
+//         String.raw` ___  XXXXXXXXXXXX   _   _   ___ _    _   XXXXXXXX`,
+//         String.raw`| __|_ __  _ __  ___| |_| |_| _ |_)__| |_____ _ _ `,
+//         String.raw`| _|| '  \| '  \/ -_)  _|  _| _ \ / _| / / -_) '_|`,
+//         String.raw`|___|_|_|_|_|_|_\___|\__|\__|___/_\__|_\_\___|_|  `,
+//         String.raw`                                                  `,
+//     ]
+//     var avg_char_height = svgHeight/lines 
+//     var svgWidth = svg.clientWidth;
+//     // Each monospaced character is 5/3 x more wide than tall
+//     var avg_char_width = avg_char_height / 1.66
 
-    for (let i = 0; i < text_ls.length; i++ ) {
-        var pixel_length = text_ls[i].length * avg_char_width
-        var start_px = svgWidth / 2 - pixel_length / 2
+//     for (let i = 0; i < text_ls.length; i++ ) {
+//         var pixel_length = text_ls[i].length * avg_char_width
+//         var start_px = svgWidth / 2 - pixel_length / 2
 
-        addTextLine(
-            [text_ls[i],
-                "white",
-                start_px ,
-                (start + i)* (svgHeight/lines)
-            ]
-        )
-    }
-}
+//         addTextLine(
+//             [text_ls[i],
+//                 "white",
+//                 start_px ,
+//                 (start + i)* (svgHeight/lines)
+//             ]
+//         )
+//     }
+// }
 
 
 String.prototype.replaceAt = function(index, replacement) {
