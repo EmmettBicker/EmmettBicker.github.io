@@ -154,10 +154,12 @@ function error_immune_animate() {
     }
 }
 
+
+var svgWidth = 0;
 function addTextLines(lines) {
     const svg = document.getElementById('fullscreen-svg');
     const fragment = document.createDocumentFragment(); // Use a document fragment for better performance
-    
+    svgWidth = svg.clientWidth;
     lines.forEach(param_arr => {
         
         let text = param_arr[0];
@@ -170,11 +172,13 @@ function addTextLines(lines) {
         let y = param_arr[3];
 
         const newText = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        newText.setAttribute('x', x);
+        newText.setAttribute('x', svgWidth / 2);
         newText.setAttribute('y', y);
         newText.setAttribute('fill', color);
         newText.setAttribute('font-size', font_size);
         newText.setAttribute('font-family', "monospace");
+        newText.setAttribute('text-anchor', "middle");
+
         newText.setAttribute('xml:space', 'preserve'); // Corrected attribute name
         newText.style.whiteSpace = 'pre';
         let tspanContent = ""
@@ -214,7 +218,7 @@ function addTextLines(lines) {
         var f = getFillForChar(tspanContent.charAt(0));
         newTspan.setAttribute('fill', f); // Example attribute
         newText.appendChild(newTspan);
-
+        // print(calibrate(newText));
         // newText.innerHTML = tspanContent;
         fragment.appendChild(newText); // Append to fragment instead of svg directly
     });
@@ -245,7 +249,6 @@ function getFillForChar(char) {
 function getCharsToReachEnd() {
     const svg = document.getElementById('fullscreen-svg');
     const svgHeight = svg.clientHeight;
-    
     var avg_char_height = svgHeight/lines 
     var svgWidth = svg.clientWidth;
     // Each monospaced character is 5/3 x more wide than tall
