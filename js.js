@@ -14,8 +14,10 @@ const add2DArrays = (arr1, arr2) =>
 
 const transitionalFrame = (arr1, arr2,n_frames) => 
     arr1.map((row, i) => 
-        row.map((val, j) => 
+        row.map((val, j) =>  
+
             (arr2[i][j] - val) / n_frames)
+        
     );
     
 function create2DArray(x) {
@@ -23,13 +25,20 @@ function create2DArray(x) {
 }
 
 function perlinNoiseToStringArray(perlinNoise2D, charactersPerRow) {
-    return perlinNoise2D.map(row => {
+    const rowScale = perlinNoise2D.length / charactersPerRow;
+    const colScale = perlinNoise2D[0].length / charactersPerRow;
+
+    return Array.from({ length: charactersPerRow }, (_, rowIndex) => {
+        const originalRowIndex = Math.floor(rowIndex * rowScale);
+        const row = perlinNoise2D[originalRowIndex];
         let rowString = '';
+
         for (let i = 0; i < charactersPerRow; i++) {
-            const index = Math.floor(i * row.length / charactersPerRow);
+            const index = Math.floor(i * colScale);
             const value = Math.floor(row[index] * 2);
             rowString += value.toString();
         }
+
         return rowString;
     });
 }
@@ -62,28 +71,31 @@ const lines = 40
 const font_size = 100/lines + "vh"
 
 var time_switched_to_noise = new Date() - 30000
-var target_p_noise = generatePerlinNoise(70,70)
+var target_p_noise = generatePerlinNoise(20,20)
 var frame_to_add = -1
 
-var counter = 0
+var counter = 1
 var p_noise_mult = 0.8
 
 var str_arr = []
 
-var pnoise = create2DArray(lines)
+var sz = 100
+var lastIter = new Date() 
+var pnoise = create2DArray(sz)
+var currentDate = new Date()
 document.addEventListener('DOMContentLoaded', function() {
-    const texts = document.querySelectorAll('svg text');
+    // const texts = document.querySelectorAll('svg text');
     
     function animate() {
        
-        var currentDate = new Date() 
-        console.log('g')
+        // console.log(new Date() - lastIter)
+        currentDate = new Date()
         // console.log(currentDate - time_switched_to_noise )
         if (currentDate - time_switched_to_noise > 1000) {
             time_switched_to_noise = new Date()
             // pnoise = target_p_noise
-            target_p_noise = generatePerlinNoise(70,70, -0, p_noise_mult * (Math.sin(counter)+0.6)/2)
-            frame_to_add = transitionalFrame(pnoise, target_p_noise,50)
+            target_p_noise = generatePerlinNoise(sz,sz, -0, p_noise_mult * (Math.sin(counter*1.5)+1)/2.7)
+            frame_to_add = transitionalFrame(pnoise, target_p_noise,40)
             p_noise_mult = Math.min(p_noise_mult + 0.2,2)
 
             counter += 0.3
@@ -92,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
             pnoise = add2DArrays(pnoise,frame_to_add)
         }
       
-        const svg = document.querySelector('svg');
+        const svg = document.getElementById('fullscreen-svg');
  
         const svgHeight = svg.clientHeight;
         while (svg.firstChild) {
@@ -100,14 +112,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     
         var chars_to_reach_end = getCharsToReachEnd()
-    
+        // console.log(chars_to_reach_end)
         str_arr = perlinNoiseToStringArray(pnoise,chars_to_reach_end)
+        var all_lines = Array(lines)
+        for (let i = 0; i <= lines; i++)
+        {  
+            all_lines[i] = makeTextLine(i) 
 
-        for (let i = 1; i < lines; i++)
-        {
-            
-            addTextLine(makeTextLine(i));
         }
+
+        try {
+            addTextLines(all_lines);
+        }
+        catch {}
 
         // makeName()
 
@@ -116,73 +133,117 @@ document.addEventListener('DOMContentLoaded', function() {
             requestAnimationFrame(animate);
         },20)
 
-        
+        lastIter = new Date() 
     }
 
-    animate();
+        animate();
+
 });
 
+function error_immune_animate() {
+    try {
+        animate();
+    }
+    catch {
+        setTimeout(() => 
+        {
+            console.log("herhehr")
+            error_immune_animate();
+        },2000)
 
-
-function addTextLine(param_arr) {
-    
-    var text = param_arr[0]
-    var color = param_arr[1]
-    var x = param_arr[2]
-    var y = param_arr[3]
-
-
-    const svg = document.querySelector('svg');
-
-    const newText = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    newText.setAttribute('x', x);
-    newText.setAttribute('y', y);
-    newText.setAttribute('fill', color);
-    newText.setAttribute('font-size', font_size);
-    newText.setAttribute('xml:space', 'preseve');
-
-    newText.textContent = text;
-    
-    var output = newText.cloneNode();
-
-    
-    var arr = Array.from(text)
-  
-    for (let j = 0; j < arr.length; j++){ 
-        let char = arr[j]
-        
-  
-        const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
-        tspan.textContent = char;
-        tspan.setAttribute('opacity', 1);
-        if (char == "0") {
-            tspan.setAttribute('fill', "black");
-        }
-        else if (char == "1") {
-            tspan.setAttribute('fill', "#0096C7");
-        }
-        else if (char == "2") {
-            tspan.setAttribute('fill', "#48CAE4");
-        }
-        else if (char == "3") {
-            tspan.setAttribute('fill', "#90E0EF");
-        }
-        else if (char == "4") {
-            tspan.setAttribute('fill', "#ADE8F4");
-        }
-        else if (char == "5") {
-            tspan.setAttribute('fill', "#CAF0F8");
-        }
-        output.appendChild(tspan);
-    };
-
-    
-    svg.appendChild(output);
-    
+    }
 }
 
+function addTextLines(lines) {
+    const svg = document.getElementById('fullscreen-svg');
+    const fragment = document.createDocumentFragment(); // Use a document fragment for better performance
+    
+    lines.forEach(param_arr => {
+        
+        let text = param_arr[0];
+        if (text === undefined) {
+            text = "";
+         
+        }
+        let color = param_arr[1];
+        let x = param_arr[2];
+        let y = param_arr[3];
+
+        const newText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        newText.setAttribute('x', x);
+        newText.setAttribute('y', y);
+        newText.setAttribute('fill', color);
+        newText.setAttribute('font-size', font_size);
+        newText.setAttribute('font-family', "monospace");
+        newText.setAttribute('xml:space', 'preserve'); // Corrected attribute name
+        newText.style.whiteSpace = 'pre';
+        let tspanContent = ""
+        if (text === undefined) {
+            let tspanContent = ""
+         
+        }
+        else{
+            let tspanContent = text[0];
+        }
+        
+        let currentFill = getFillForChar(text[0])
+       
+        for (let j = 1; j < text.length; j++) {
+            let char = text[j];
+            let fill = getFillForChar(char); // Helper function to get fill color for each character
+
+            if (fill === currentFill) {
+              
+                tspanContent += char;
+                currentFill = fill;
+            } else {
+                var newTspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+                newTspan.textContent = tspanContent; // Set text content of <tspan>
+              
+                var f = getFillForChar(tspanContent.charAt(0));
+                newTspan.setAttribute('fill', f); // Example attribute
+    
+                newText.appendChild(newTspan);
+                tspanContent = char;
+                currentFill = fill;
+             
+            }
+        }
+        var newTspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+        newTspan.textContent = tspanContent; // Set text content of <tspan>
+        var f = getFillForChar(tspanContent.charAt(0));
+        newTspan.setAttribute('fill', f); // Example attribute
+        newText.appendChild(newTspan);
+
+        // newText.innerHTML = tspanContent;
+        fragment.appendChild(newText); // Append to fragment instead of svg directly
+    });
+
+    svg.appendChild(fragment); // Append all lines at once
+}
+
+function getFillForChar(char) {
+    switch (char) {
+        case "0":
+            return "#000C18";
+        case "1":
+            return "#0096C7";
+        case "2":
+            return "#48CAE4";
+        case "3":
+            return "#90E0EF";
+        case "4":
+            return "#ADE8F4";
+        case "5":
+            return "#CAF0F8";
+        default:
+            return "#FFFFFF"; // Default fill color
+    }
+}
+
+
 function getCharsToReachEnd() {
-    const svg = document.querySelector('svg');
+    const svg = document.getElementById('fullscreen-svg');
     const svgHeight = svg.clientHeight;
     
     var avg_char_height = svgHeight/lines 
@@ -190,14 +251,24 @@ function getCharsToReachEnd() {
     // Each monospaced character is 5/3 x more wide than tall
     var avg_char_width = avg_char_height / 1.64
     var chars_to_reach_end = svgWidth/avg_char_width
+
     return chars_to_reach_end
 }
 
 
 function makeTextLine(i) {
-    const svg = document.querySelector('svg');
+    const svg = document.getElementById('fullscreen-svg');
     const svgHeight = svg.clientHeight;
+
+    
+    
     var example = String.raw`XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX`
+
+    var should_print_name = true
+    if (getCharsToReachEnd() < example.length + 2) {
+        should_print_name = false
+    }
+
     var start = lines / 2 - 4
     var end = lines / 2 + 1
     var ret_val = str_arr[i]
@@ -213,7 +284,7 @@ function makeTextLine(i) {
     ]
     var str_start = getCharsToReachEnd() / 2 - example.length/2
     var str_end = getCharsToReachEnd() / 2 + example.length/2 -1
-    if (i < end && i > start) 
+    if (i < end && i > start && should_print_name)  
     {
         ret_val = str_arr[i].substring(0,str_start)
                     + text_ls[i-start-1]
