@@ -279,10 +279,11 @@ function makeTextLine(i) {
     var color = "grey"
     var text_ls = 
     [
-        String.raw` ___  XXXXXXXXXXXX   _   _   ___ _    _  XXXXXXXXX`,
-        String.raw`| __|_ __  _ __  ___| |_| |_| _ |_)__| |_____ _ _ `,
-        String.raw`| _|| '  \| '  \/ -_)  _|  _| _ \ / _| / / -_) '_|`,
-        String.raw`|___|_|_|_|_|_|_\___|\__|\__|___/_\__|_\_\___|_|  `,
+        String.raw` ___  XXXXXXXXXXXX   _   _   ___ _    _  XXXXXXXXX`.replace(/ /g, '\u00A0'),
+        String.raw`| __|_ __  _ __  ___| |_| |_| _ |_)__| |_____ _ _ `.replace(/ /g, '\u00A0'),
+        String.raw`| _|| '  \| '  \/ -_)  _|  _| _ \ / _| / / -_) '_|`.replace(/ /g, '\u00A0'),
+        String.raw`|___|_|_|_|_|_|_\___|\__|\__|___/_\__|_\_\___|_|  `.replace(/ /g, '\u00A0'),
+
 
     ]
     var str_start = getCharsToReachEnd() / 2 - example.length/2
