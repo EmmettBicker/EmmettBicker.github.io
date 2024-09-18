@@ -1,4 +1,4 @@
-export { PerlinNoise, generatePerlinNoise };
+export { PerlinNoise, generatePerlinNoise, generatePerlinNoise2 };
 
 class PerlinNoise {
     constructor(seed = Math.random()) {
@@ -59,3 +59,30 @@ function generatePerlinNoise(width, height, modifier=0, mult=1, scale = 0.1, see
     return noiseArray;
 }
 
+let counter = 1;
+function generatePerlinNoise2(doc_w, doc_h, width, height, modifier=0, mult=1, scale = 0.1, seed = Math.random()) {
+    const perlin = new PerlinNoise(seed);
+    const noiseArray = new Array(height);
+    const w_to_h_ratio = doc_h/doc_w;
+    const square_ratio = 815/500;
+    let scaling_ratio = w_to_h_ratio / square_ratio
+    for (let y = 0; y < height; y++) {
+        noiseArray[y] = new Array(width);
+        for (let x = 0; x < width; x++) {
+            let noise = perlin.noise(x * scale, y * scale);
+            noise = Math.max((noise + 1) / 2 + modifier,0);  // normalize to 0-1
+            noise *= mult
+            let x_offset = Math.abs((x-width/2))/width;
+            let y_offset = Math.abs((y-(height*scaling_ratio)/2))/height;
+            let k =10;
+            
+            let value = x_offset*x_offset*k+y_offset*y_offset*k;
+            value = Math.sin(value*10-counter*1)*1.8;
+            
+            noiseArray[y][x] = value+noise*0.7;
+        }
+    }
+    counter += 1;
+    console.log(doc_w +" " + doc_h);
+    return noiseArray;
+}
