@@ -1,4 +1,4 @@
-import { generatePerlinNoise } from './perlin_noise.js';
+import { generatePerlinNoise, generatePerlinNoise2} from './perlin_noise.js';
 
 var max_val = 0
 var len = 10
@@ -7,9 +7,9 @@ var width = 10
 const add2DArrays = (arr1, arr2) => 
     arr1.map((row, i) => 
       row.map((val, j) => 
-        Math.min(
+        (Math.min(
             Math.max(val + arr2[i][j],0),
-            9))
+            9)) )
     );
 
 const transitionalFrame = (arr1, arr2,n_frames) => 
@@ -94,7 +94,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentDate - time_switched_to_noise > 1000) {
             time_switched_to_noise = new Date()
             // pnoise = target_p_noise
-            target_p_noise = generatePerlinNoise(sz,sz, -0, p_noise_mult * (Math.sin(counter*1.5)+1)/2.7)
+            const svg = document.getElementById('fullscreen-svg');
+            const svgHeight = svg.clientHeight;
+            var avg_char_height = svgHeight/lines 
+            var svgWidth = svg.clientWidth;
+            target_p_noise = generatePerlinNoise2(svgWidth,svgHeight, sz,sz, -0, p_noise_mult * (Math.sin(counter*1.5)+1)/2.7)
             frame_to_add = transitionalFrame(pnoise, target_p_noise,40)
             p_noise_mult = Math.min(p_noise_mult + 0.2,2)
 
@@ -178,7 +182,11 @@ function addTextLines(lines) {
         newText.setAttribute('font-size', font_size);
         newText.setAttribute('font-family', "monospace");
         newText.setAttribute('text-anchor', "middle");
+        newText.setAttribute('white-space', 'pre');
+        newText.setAttribute('word-wrap', 'normal');
+        newText.setAttribute('resize', 'none');
 
+        
         newText.setAttribute('xml:space', 'preserve'); // Corrected attribute name
         newText.style.whiteSpace = 'pre';
         let tspanContent = ""
@@ -202,6 +210,7 @@ function addTextLines(lines) {
                 currentFill = fill;
             } else {
                 var newTspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+                
                 newTspan.textContent = tspanContent; // Set text content of <tspan>
               
                 var f = getFillForChar(tspanContent.charAt(0));
@@ -214,10 +223,13 @@ function addTextLines(lines) {
             }
         }
         var newTspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+        
         newTspan.textContent = tspanContent; // Set text content of <tspan>
+        
         var f = getFillForChar(tspanContent.charAt(0));
         newTspan.setAttribute('fill', f); // Example attribute
         newText.appendChild(newTspan);
+        
         // print(calibrate(newText));
         // newText.innerHTML = tspanContent;
         fragment.appendChild(newText); // Append to fragment instead of svg directly
@@ -283,7 +295,6 @@ function makeTextLine(i) {
         String.raw`| __|_ __  _ __  ___| |_| |_| _ |_)__| |_____ _ _ `.replace(/ /g, '\u00A0'),
         String.raw`| _|| '  \| '  \/ -_)  _|  _| _ \ / _| / / -_) '_|`.replace(/ /g, '\u00A0'),
         String.raw`|___|_|_|_|_|_|_\___|\__|\__|___/_\__|_\_\___|_|  `.replace(/ /g, '\u00A0'),
-
 
     ]
     var str_start = getCharsToReachEnd() / 2 - example.length/2
